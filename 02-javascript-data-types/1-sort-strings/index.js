@@ -4,6 +4,11 @@
  * @param {string} [param="asc"] param - the sorting type "asc" or "desc"
  * @returns {string[]}
  */
-export function sortStrings(arr, param = 'lowerAsc') {
+export function sortStrings(arr, param = 'asc') {
+    let words = [...arr];
+    if (param === 'asc') {
+        return words.sort((a, b) => a.localeCompare(b, {}, {caseFirst: 'upper'}));
+    }
 
+    return words.sort((a, b) => b.localeCompare(a, {}, {caseFirst: 'upper'}));
 }
