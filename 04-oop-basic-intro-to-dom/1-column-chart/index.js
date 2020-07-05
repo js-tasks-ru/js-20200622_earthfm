@@ -16,10 +16,11 @@ export default class ColumnChart {
 	}
 
 	render() {
-		this.element = this._createElement(
+		this.element = this.createElement(
 			'div',
-			`${Boolean(this.data.length) ? 'column-chart' : 'column-chart column-chart_loading'}`
+			`${this.data.length ? 'column-chart' : 'column-chart column-chart_loading'}`
 		);
+
 		this.element.append(this._renderTitle(this.label, this.link));
 		this.element.append(this._renderContainer(this.data, this.value));
 	}
@@ -33,23 +34,27 @@ export default class ColumnChart {
 	}
 
 	_renderTitle(label, link) {
-		const title = this._createElement('div', 'column-chart__title');
+		const title = document.createElement('div');
 		title.innerHTML = `
-			Total ${label}
-			${Boolean(link) ? `<a href="${link}" class="column-chart__link">View all</a>` : ''}
-    `;
+			<div class="column-chart__title">
+				Total ${label}
+				${Boolean(link) ? `<a href="${link}" class="column-chart__link">View all</a>` : ''}
+			</div>
+    	`;
 
 		return title;
 	}
 
 	_renderContainer(data, value) {
-		const container = this._createElement('div', 'column-chart__container');
+		const container = document.createElement('div');
 		container.innerHTML = `
-			<div class="column-chart__header">${value}</div>
-			<div class="column-chart__chart">
-				${this._renderListTooltip(data)}
+			<div class="column-chart__container">
+				<div class="column-chart__header">${value}</div>
+				<div class="column-chart__chart">
+					${this._renderListTooltip(data)}
+				</div>
 			</div>
-    `;
+    	`;
 
 		return container;
 	}
@@ -57,19 +62,19 @@ export default class ColumnChart {
 	_renderListTooltip(data) {
 		const calculateData = this._getColumnProps(data);
 		return calculateData.reduce((str, currentData) => {
-			return str += this._renderTooltip(currentData).outerHTML;
+			return str += this._renderTooltip(currentData).innerHTML;
 		}, '');
 	}
 
-	_renderTooltip(data) {
+	_renderTooltip({value, percent}) {
 		const tooltip = document.createElement('div');
-		tooltip.setAttribute('style', `--value:${data.value}`);
-		tooltip.setAttribute('data-tooltip', data.percent);
+		tooltip.innerHTML = `
+			<div style="--value:${value}" data-tooltip="${percent}"></div>
+		`;
 		return tooltip;
 	}
 
-	// Utils
-	_createElement(tag, className) {
+	createElement(tag, className) {
 		const elem = document.createElement(tag);
 		elem.className = className;
 		return elem;
