@@ -21,8 +21,10 @@ export default class ColumnChart {
 			`${this.data.length ? 'column-chart' : 'column-chart column-chart_loading'}`
 		);
 
-		this.element.append(this._renderTitle(this.label, this.link));
-		this.element.append(this._renderContainer(this.data, this.value));
+		this.element.innerHTML = `
+			${this.renderTitle(this.label, this.link)}
+			${this.renderContainer(this.data, this.value)}
+		`;
 	}
 
 	remove() {
@@ -33,45 +35,37 @@ export default class ColumnChart {
 		this.remove();
 	}
 
-	_renderTitle(label, link) {
-		const title = document.createElement('div');
-		title.innerHTML = `
+	renderTitle(label, link) {
+		return `
 			<div class="column-chart__title">
 				Total ${label}
 				${Boolean(link) ? `<a href="${link}" class="column-chart__link">View all</a>` : ''}
 			</div>
     	`;
-
-		return title;
 	}
 
-	_renderContainer(data, value) {
-		const container = document.createElement('div');
-		container.innerHTML = `
+	renderContainer(data, value) {
+		return `
 			<div class="column-chart__container">
 				<div class="column-chart__header">${value}</div>
 				<div class="column-chart__chart">
-					${this._renderListTooltip(data)}
+					${this.renderListTooltip(data)}
 				</div>
 			</div>
     	`;
-
-		return container;
 	}
 
-	_renderListTooltip(data) {
-		const calculateData = this._getColumnProps(data);
+	renderListTooltip(data) {
+		const calculateData = this.getColumnProps(data);
 		return calculateData.reduce((str, currentData) => {
-			return str += this._renderTooltip(currentData).innerHTML;
+			return str += this.renderTooltip(currentData);
 		}, '');
 	}
 
-	_renderTooltip({value, percent}) {
-		const tooltip = document.createElement('div');
-		tooltip.innerHTML = `
+	renderTooltip({value, percent}) {
+		return `
 			<div style="--value:${value}" data-tooltip="${percent}"></div>
 		`;
-		return tooltip;
 	}
 
 	createElement(tag, className) {
@@ -80,7 +74,7 @@ export default class ColumnChart {
 		return elem;
 	}
 
-	_getColumnProps(data) {
+	getColumnProps(data) {
 		const maxValue = Math.max(...data);
 		const scale = 50 / maxValue;
 	
