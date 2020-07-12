@@ -16,12 +16,15 @@ export default class ColumnChart {
 	}
 
 	render() {
-		this.element = this._createElement(
+		this.element = this.createElement(
 			'div',
-			`${Boolean(this.data.length) ? 'column-chart' : 'column-chart column-chart_loading'}`
+			`${this.data.length ? 'column-chart' : 'column-chart column-chart_loading'}`
 		);
-		this.element.append(this._renderTitle(this.label, this.link));
-		this.element.append(this._renderContainer(this.data, this.value));
+
+		this.element.innerHTML = `
+			${this.renderTitle(this.label, this.link)}
+			${this.renderContainer(this.data, this.value)}
+		`;
 	}
 
 	remove() {
@@ -32,50 +35,46 @@ export default class ColumnChart {
 		this.remove();
 	}
 
-	_renderTitle(label, link) {
-		const title = this._createElement('div', 'column-chart__title');
-		title.innerHTML = `
-			Total ${label}
-			${Boolean(link) ? `<a href="${link}" class="column-chart__link">View all</a>` : ''}
-    `;
-
-		return title;
-	}
-
-	_renderContainer(data, value) {
-		const container = this._createElement('div', 'column-chart__container');
-		container.innerHTML = `
-			<div class="column-chart__header">${value}</div>
-			<div class="column-chart__chart">
-				${this._renderListTooltip(data)}
+	renderTitle(label, link) {
+		return `
+			<div class="column-chart__title">
+				Total ${label}
+				${Boolean(link) ? `<a href="${link}" class="column-chart__link">View all</a>` : ''}
 			</div>
-    `;
-
-		return container;
+    	`;
 	}
 
-	_renderListTooltip(data) {
-		const calculateData = this._getColumnProps(data);
+	renderContainer(data, value) {
+		return `
+			<div class="column-chart__container">
+				<div class="column-chart__header">${value}</div>
+				<div class="column-chart__chart">
+					${this.renderListTooltip(data)}
+				</div>
+			</div>
+    	`;
+	}
+
+	renderListTooltip(data) {
+		const calculateData = this.getColumnProps(data);
 		return calculateData.reduce((str, currentData) => {
-			return str += this._renderTooltip(currentData).outerHTML;
+			return str += this.renderTooltip(currentData);
 		}, '');
 	}
 
-	_renderTooltip(data) {
-		const tooltip = document.createElement('div');
-		tooltip.setAttribute('style', `--value:${data.value}`);
-		tooltip.setAttribute('data-tooltip', data.percent);
-		return tooltip;
+	renderTooltip({value, percent}) {
+		return `
+			<div style="--value:${value}" data-tooltip="${percent}"></div>
+		`;
 	}
 
-	// Utils
-	_createElement(tag, className) {
+	createElement(tag, className) {
 		const elem = document.createElement(tag);
 		elem.className = className;
 		return elem;
 	}
 
-	_getColumnProps(data) {
+	getColumnProps(data) {
 		const maxValue = Math.max(...data);
 		const scale = 50 / maxValue;
 	
