@@ -1,4 +1,4 @@
-class NotificationMessage {
+export default class NotificationMessage {
     static timer = null;
     static isElement = false;
     static rootElement = null;
