@@ -1,51 +1,64 @@
-export default class NotificationMessage {
-    static HELP_TIME = 10;
+class NotificationMessage {
+    static timer = null;
+    static isElement = false;
+    static rootElement = null;
 
-    timer = null;
-
-    constructor(message, {duration = 2000, type} = {}) {
+    constructor(message, { duration = 2000, type = "success" } = {}) {
         this.message = message;
         this.duration = duration;
         this.type = type;
 
-        this.element = document.createElement('div');
-        this.element.className =`notification ${Boolean(this.type) ? `${this.type}` : ""}`;
-        this.element.setAttribute('style', `--value:${this.duration / 1000}s`);
+        if (NotificationMessage.isElement) {
+            this.remove();
+        }
+
+        this.setRootElement();
     }
 
-    //<div class="notification ${Boolean(this.type) ? `${this.type}` : ""}" style="--value:${this.duration / 1000}s">
+    setRootElement() {
+        this.element = document.createElement('div');
+        this.element.className = `notification ${this.type}`;
+        this.element.setAttribute('style', `--value:${this.duration / 1000}s`);
+
+        NotificationMessage.rootElement = this.element;
+        NotificationMessage.isElement = true;
+
+        this.render();
+    }
+
     get template() {
         return `
             <div class="timer"></div>
             <div class="inner-wrapper">
-                ${Boolean(this.type) ? `<div class="notification-header">${this.type}</div>` : ''}
+                <div class="notification-header">${this.type}</div>
                 <div class="notification-body">${this.message}</div>
             </div>
         `;
     }
 
-    show() {
-        this.render();
-        this.timer = setTimeout(() => {
+    show(root) {
+        if (root) {
+            root.append(this.element)
+        } else {
+            document.body.append(this.element);
+        }
+
+        NotificationMessage.timer = setTimeout(() => {
             this.destroy();
-        }, this.duration - NotificationMessage.HELP_TIME);
+        }, this.duration - 10);
     }
 
     render() {
         this.element.innerHTML = this.template;
-
-        if (!document.querySelector('.notification')) {
-            document.body.append(this.element);
-        }
     }
 
     remove() {
-        this.element.remove();
+        NotificationMessage.rootElement.remove();
     }
 
     destroy() {
         this.remove();
-        clearTimeout(this.timer);
+        clearTimeout(NotificationMessage.timer);
     }
 
 }
