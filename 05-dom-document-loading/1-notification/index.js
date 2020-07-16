@@ -1,5 +1,4 @@
 export default class NotificationMessage {
-    static timer = null;
     static isElement = false;
     static rootElement = null;
 
@@ -9,29 +8,27 @@ export default class NotificationMessage {
         this.type = type;
 
         if (NotificationMessage.isElement) {
-            this.remove();
+            NotificationMessage.rootElement.remove();
         }
 
         this.setRootElement();
     }
 
     setRootElement() {
-        this.element = document.createElement('div');
-        this.element.className = `notification ${this.type}`;
-        this.element.setAttribute('style', `--value:${this.duration / 1000}s`);
+        this.render();
 
         NotificationMessage.rootElement = this.element;
         NotificationMessage.isElement = true;
-
-        this.render();
     }
 
     get template() {
         return `
-            <div class="timer"></div>
-            <div class="inner-wrapper">
-                <div class="notification-header">${this.type}</div>
-                <div class="notification-body">${this.message}</div>
+            <div class="notification ${this.type}" style="--value:${this.duration}ms">
+                <div class="timer"></div>
+                <div class="inner-wrapper">
+                    <div class="notification-header">${this.type}</div>
+                    <div class="notification-body">${this.message}</div>
+                </div>
             </div>
         `;
     }
@@ -39,22 +36,24 @@ export default class NotificationMessage {
     show(root = document.body) {
         root.append(this.element)
 
-        NotificationMessage.timer = setTimeout(() => {
+        setTimeout(() => {
             this.destroy();
-        }, this.duration - 10);
+        }, this.duration);
     }
 
     render() {
-        this.element.innerHTML = this.template;
+        const element = document.createElement('div');
+        element.innerHTML = this.template;
+
+        this.element = element.firstElementChild;
     }
 
     remove() {
-        NotificationMessage.rootElement.remove();
+        this.element.remove(); // ? в чём разница NotificationMessage.rootElement.remove();
     }
 
     destroy() {
         this.remove();
-        clearTimeout(NotificationMessage.timer);
     }
 
 }
